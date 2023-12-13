@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Chatbot Interface</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .chat-container {
+            max-width: 600px;
+            margin: auto;
+        }
+        .chat-input {
+            min-height: 50px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .chat-input:focus {
+            outline: none;
+        }
+        .chat-response {
+            min-height: 50px;
+            background-color: #f3f4f6;
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+        
+          .logout-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+
+    .logout-button a {
+        padding: 10px;
+        background-color: #3498db;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+    }
+    
+    .chat-header {
+        text-align: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+     #send-button {
+        background-color: #3498db;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+    
+.hais-title {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #e53e3e; /* Set the text color to red */
+}
+    </style>
+</head>
+<body class="bg-white text-gray-800">
+
+ <div class="chat-container">
+        <div class="header-container">
+            <div class="logout-button">
+    <a href="{{ url_for('logout') }}">Logout</a>
+</div>
+
+            <div class="chat-header">Chatbot</div>
+        </div>
+        <div class="chat-messages" id="chat-messages"></div>
+
+
+
+
+
+
+    <div class="container mx-auto p-4">
+        <!-- Header and Navigation Section (unchanged) -->
+        
+        <div class="hais-title">
+            <h1 class="text-3xl font-bold text-red-600 mr-6">HAIS</h1>
+        </div>
+
+        <main class="mt-8 chat-container">
+            <div class="text-center">
+                <h2 class="text-4xl font-bold mb-4">The answer to any question.</h2>
+                <div class="flex justify-center items-center">
+                    <textarea id="chat-input" placeholder="Ask anything..." class="chat-input px-4 py-2 border border-gray-300 rounded-l-lg focus:border-blue-500 w-full resize-none" oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'"></textarea>
+                    <button id="send-button" class="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-600 focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H3m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="chat-response" id="chat-response">
+                    <!-- Chatbot response will be dynamically inserted here -->
+                </div>
+                <!-- Additional UI elements (unchanged) -->
+            </div>
+        </main>
+
+        <!-- Footer Section (unchanged) -->
+    </div>
+
+    <script>
+        document.getElementById('send-button').addEventListener('click', function() {
+            const chatInput = document.getElementById('chat-input');
+            const chatResponse = document.getElementById('chat-response');
+
+            const userMessage = chatInput.value.trim();
+            if (userMessage) {
+                // Display user message
+                chatResponse.innerHTML += '<div class="user-message">' + userMessage + '</div>';
+
+                // Send user message to the server (replace '/chat' with your actual Flask endpoint)
+                fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'user_input=' + encodeURIComponent(userMessage),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Display assistant message
+                    chatResponse.innerHTML += '<div class="assistant-message">' + data.assistant_response + '</div>';
+                })
+                .catch(error => {
+                    console.error('Error sending message to server:', error);
+                });
+
+                // Clear the input field
+                chatInput.value = '';
+                chatInput.style.height = '50px'; // Reset textarea height
+            }
+        });
+    </script>
+</body>
+</html>
