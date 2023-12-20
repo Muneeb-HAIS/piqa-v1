@@ -1,33 +1,35 @@
-from flask import Flask, render_template, request,jsonify
+from flask import Flask, render_template, request, jsonify
 from openai import OpenAI
 import pandas as pd
+from flask_sqlalchemy import SQLAlchemy
+from dotenv import load_dotenv
 import os
+from datetime import datetime
+
+load_dotenv()
 
 app = Flask(__name__)
 
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = "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"
+
+#OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 client = OpenAI()
 
-# Load your data here (replace 'path_to_your_excel_file' with the actual path)
 df = pd.read_excel(r'C:\Users\acer1\Downloads\Company Structure Dataset.xlsx')
-
-# Convert DataFrame to JSON string
 df_json = df.to_json(orient='split')
-
-# System message to set the behavior of the assistant
 system_message = {"role": "system", "content": df_json}
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index3.html')
 
 @app.route('/chat', methods=['POST'])
-def chat():
+def chat_bot():
     user_input = request.form['user_input']
 
     # Check if the user wants to quit
     if user_input.lower() == 'quit':
-        return render_template('index.html', user_input=user_input, assistant_response="Chatbot session ended.")
+        return render_template('index3.html', user_input=user_input, assistant_response="Chatbot session ended.")
 
     # Add user input to the conversation
     user_messages = [{"role": "user", "content": user_input}]
@@ -46,7 +48,16 @@ def chat():
     user_messages.append({"role": "assistant", "content": assistant_response})
     conversation = [system_message] + user_messages
 
-    return render_template('index.html', user_input=user_input, assistant_response=assistant_response)
+    # Store the conversation in the database
+    model_info = "gpt-3.5-turbo"  # Modify this based on the actual model used
+    timestamp = datetime.utcnow()
+    app.logger.info(f"Conversation: {conversation}")
+    app.logger.info(f"Model Info: {model_info}")
+    app.logger.info(f"Timestamp: {timestamp}")
+
+  
+
+    return render_template('index3.html', user_input=user_input, assistant_response=assistant_response)
 
 if __name__ == '__main__':
     app.run(debug=True)

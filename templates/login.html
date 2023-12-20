@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
     <style>
         .form-input:focus {
             outline: 2px solid #22D3EE;
@@ -15,24 +16,45 @@
 <body class="bg-gray-50 flex items-center justify-center h-screen">
     <div class="bg-white p-8 rounded-lg shadow-lg max-w-sm w-full">
         <h1 class="text-4xl font-bold mb-6 text-center">Log In</h1>
-       <p class="text-center mb-6">
-    Need a Mailchimp account? <a href="{{ url_for('signup') }}" class="text-blue-500 hover:underline">Create an account</a>
-</p>
+        <p class="text-center mb-6">
+            Need a Mailchimp account? <a href="{{ url_for('signup') }}" class="text-blue-500 hover:underline">Create an account</a>
+        </p>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div id="flash-messages" style="display: none;">
+                    {% for category, message in messages %}
+                        <span class="flash-message" data-category="{{ category }}">{{ message }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
 
         <form method="POST" action="{{ url_for('login') }}">
             <div class="mb-4">
-                <label for="username" class="block text-gray-700 text-sm font-bold mb-2">Username</label>
-                <input type="text" id="username" name="username" class="form-input w-full px-3 py-2 border rounded" placeholder="Enter your username">
+                <label for="role" class="block text-gray-700 text-sm font-bold mb-2">Role</label>
+                <input type="text" id="role" name="role" class="form-input w-full px-3 py-2 border rounded" required>
             </div>
-            <div class="mb-6">
-                <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Password</label>
-                <div class="flex items-center">
-                    <input type="password" id="password" name="password" class="form-input w-full px-3 py-2 border rounded mr-2" placeholder="Enter your password">
-                    <button type="button" onclick="togglePasswordVisibility()" class="text-blue-500 hover:text-blue-700 focus:outline-none">
-                        Show
-                    </button>
+
+            <fieldset class="mb-6">
+                <legend class="block text-gray-700 text-sm font-bold mb-2">Credentials</legend>
+
+                <div class="mb-4">
+                    <label for="username" class="block text-gray-700 text-sm font-bold mb-2">Username</label>
+                    <input type="text" id="username" name="username" class="form-input w-full px-3 py-2 border rounded" placeholder="Enter your username" required>
                 </div>
-            </div>
+
+                <div class="mb-4">
+                    <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                    <div class="flex items-center">
+                        <input type="password" id="password" name="password" class="form-input w-full px-3 py-2 border rounded mr-2" placeholder="Enter your password" required>
+                        <button type="button" onclick="togglePasswordVisibility()" class="text-blue-500 hover:text-blue-700 focus:outline-none">
+                            Show
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+
             <div class="flex items-center justify-between mb-6">
                 <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                     Log In
@@ -42,6 +64,7 @@
                     <label for="remember" class="text-sm text-gray-600">Keep me logged in</label>
                 </div>
             </div>
+
             <div class="flex items-center justify-between">
                 <a href="#" class="inline-block align-baseline text-sm text-blue-500 hover:text-blue-800">Forgot username?</a>
                 <a href="#" class="inline-block align-baseline text-sm text-blue-500 hover:text-blue-800">Forgot password?</a>
@@ -60,6 +83,36 @@
                 passwordInput.type = 'password';
                 toggleButton.textContent = 'Show';
             }
+        }
+        
+        window.onload = function() {
+            displayFlashMessagesAsNotifications();
+        };
+
+        function displayFlashMessagesAsNotifications() {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(msg => {
+                const message = msg.textContent;
+                const category = msg.dataset.category;
+                showNotification(message, category);
+            });
+        }
+
+        function showNotification(message, category) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.position = 'fixed';
+            notification.style.bottom = '20px';
+            notification.style.right = '20px';
+            notification.style.backgroundColor = category === 'success' ? 'lightgreen' : 'lightcoral';
+            notification.style.padding = '10px';
+            notification.style.borderRadius = '5px';
+            notification.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000); // Remove after 3 seconds
         }
     </script>
 </body>

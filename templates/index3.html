@@ -25,120 +25,218 @@
             padding: 1rem;
             border-radius: 0.5rem;
         }
-        
-          .logout-button {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-    }
-
-    .logout-button a {
-        padding: 10px;
-        background-color: #3498db;
-        color: #fff;
-        text-decoration: none;
-        border-radius: 5px;
-    }
-    
-    .chat-header {
-        text-align: center;
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-    }
-    
-     #send-button {
-        background-color: #3498db;
-        color: #fff;
-        border: none;
-        cursor: pointer;
-        font-size: 1rem;
-    }
-    
-.hais-title {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    color: #e53e3e; /* Set the text color to red */
-}
+        .logout-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .logout-button a {
+            padding: 10px;
+            background-color: #3498db;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .chat-header {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        #send-button {
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .feedback-container {
+            margin-top: 1rem;
+        }
+        #submit-feedback {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body class="bg-white text-gray-800">
 
- <div class="chat-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div id="flash-messages" style="display: none;">
+                {% for category, message in messages %}
+                    <span class="flash-message" data-category="{{ category }}">{{ message }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="chat-container">
         <div class="header-container">
             <div class="logout-button">
-    <a href="{{ url_for('logout') }}">Logout</a>
-</div>
-
+                <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
             <div class="chat-header">Chatbot</div>
         </div>
         <div class="chat-messages" id="chat-messages"></div>
-
-
-
-
-
-
-    <div class="container mx-auto p-4">
-        <!-- Header and Navigation Section (unchanged) -->
-        
-        <div class="hais-title">
-            <h1 class="text-3xl font-bold text-red-600 mr-6">HAIS</h1>
-        </div>
-
-        <main class="mt-8 chat-container">
-            <div class="text-center">
-                <h2 class="text-4xl font-bold mb-4">The answer to any question.</h2>
-                <div class="flex justify-center items-center">
-                    <textarea id="chat-input" placeholder="Ask anything..." class="chat-input px-4 py-2 border border-gray-300 rounded-l-lg focus:border-blue-500 w-full resize-none" oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'"></textarea>
-                    <button id="send-button" class="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-600 focus:outline-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H3m0 0l3-3m-3 3l3 3" />
-                        </svg>
-                    </button>
-                </div>
-                <div class="chat-response" id="chat-response">
-                    <!-- Chatbot response will be dynamically inserted here -->
-                </div>
-                <!-- Additional UI elements (unchanged) -->
+        <div class="container mx-auto p-4">
+            <div class="hais-title">
+                <h1 class="text-3xl font-bold text-red-600 mr-6">HAIS</h1>
             </div>
-        </main>
-
-        <!-- Footer Section (unchanged) -->
+            <main class="mt-8 chat-container">
+                <div class="text-center">
+                    <h2 class="text-4xl font-bold mb-4">The answer to any question.</h2>
+                    <div class="flex justify-center items-center">
+                        <textarea id="chat-input" placeholder="Ask anything..." class="chat-input px-4 py-2 border border-gray-300 rounded-l-lg focus:border-blue-500 w-full resize-none" oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'"></textarea>
+                        <button id="send-button" class="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-600 focus:outline-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H3m0 0l3-3m-3 3l3 3" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="chat-response" id="chat-response">
+                        <!-- Chatbot response will be dynamically inserted here -->
+                    </div>
+                   <div class="feedback-container">
+            <label for="feedback">Feedback:</label>
+            <select id="feedback" name="feedback">
+                <option value="" selected disabled>Select feedback</option>
+                <option value="positive">Positive</option>
+                <option value="negative">Negative</option>
+            </select>
+            <textarea id="feedback-details" name="feedback-details" placeholder="Feedback details" style="display: none;"></textarea>
+            <button id="submit-feedback" disabled>Submit Feedback</button>
+        </div>
+    </div>
+            </main>
+        </div>
     </div>
 
     <script>
-        document.getElementById('send-button').addEventListener('click', function() {
+        let currentFeedback = '';
+
+        window.onload = function() {
+            const feedbackSelect = document.getElementById('feedback');
+            const feedbackDetails = document.getElementById('feedback-details');
+            const submitFeedbackButton = document.getElementById('submit-feedback');
+
+           document.getElementById('send-button').addEventListener('click', sendChatMessage);
+            feedbackSelect.addEventListener('change', handleFeedbackChange);
+            submitFeedbackButton.addEventListener('click', submitFeedback);
+
+            // Display flash messages as notifications
+            displayFlashMessagesAsNotifications();
+        };
+
+        function sendChatMessage() {
             const chatInput = document.getElementById('chat-input');
             const chatResponse = document.getElementById('chat-response');
-
             const userMessage = chatInput.value.trim();
+
             if (userMessage) {
-                // Display user message
                 chatResponse.innerHTML += '<div class="user-message">' + userMessage + '</div>';
 
-                // Send user message to the server (replace '/chat' with your actual Flask endpoint)
+                const postData = {
+                    user_input: userMessage,
+                    messages: [{ role: 'user', content: userMessage }]
+                };
+
                 fetch('/chat', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'user_input=' + encodeURIComponent(userMessage),
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(postData),
                 })
                 .then(response => response.json())
                 .then(data => {
-                    // Display assistant message
                     chatResponse.innerHTML += '<div class="assistant-message">' + data.assistant_response + '</div>';
                 })
                 .catch(error => {
                     console.error('Error sending message to server:', error);
                 });
 
-                // Clear the input field
                 chatInput.value = '';
-                chatInput.style.height = '50px'; // Reset textarea height
+                chatInput.style.height = '50px';
             }
+        }
+
+     function handleFeedbackChange() {
+            const feedbackSelect = document.getElementById('feedback');
+            const feedbackDetails = document.getElementById('feedback-details');
+            const submitFeedbackButton = document.getElementById('submit-feedback');
+
+            if (feedbackSelect.value === 'negative') {
+                feedbackDetails.style.display = 'block';
+                submitFeedbackButton.disabled = false; // Enable button when negative is selected
+            } else {
+                feedbackDetails.style.display = 'none';
+                feedbackDetails.value = '';
+                submitFeedbackButton.disabled = feedbackSelect.value === ''; // Disable button if no selection
+            }
+        }
+
+        function submitFeedback() {
+    const feedbackSelect = document.getElementById('feedback');
+    const feedbackDetails = document.getElementById('feedback-details');
+    const submitFeedbackButton = document.getElementById('submit-feedback'); // Add this line
+    const feedbackValue = feedbackSelect.value;
+    let additionalDetails = '';
+
+    if (feedbackValue === 'negative') {
+        additionalDetails = feedbackDetails.value;
+    }
+
+    if (feedbackValue) {
+        fetch('/submit-feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ feedback: feedbackValue, details: additionalDetails }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Feedback submitted:', data);
+            showNotification('Feedback submitted successfully');
+            feedbackDetails.style.display = 'none';
+            submitFeedbackButton.disabled = true; // Disable the button after submission
+        })
+        .catch(error => {
+            console.error('Error submitting feedback:', error);
         });
+
+        feedbackSelect.value = '';
+        feedbackDetails.value = '';
+    } else {
+        console.error('Please select a feedback option before submitting.');
+    }
+}
+
+        function showNotification(message, category = 'success') {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.position = 'fixed';
+            notification.style.bottom = '20px';
+            notification.style.right = '20px';
+            notification.style.backgroundColor = category === 'success' ? 'lightgreen' : 'lightcoral';
+            notification.style.padding = '10px';
+            notification.style.borderRadius = '5px';
+            notification.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        function displayFlashMessagesAsNotifications() {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(msg => {
+                const message = msg.textContent;
+                const category = msg.dataset.category || 'info';
+                showNotification(message, category);
+            });
+        }
     </script>
 </body>
 </html>

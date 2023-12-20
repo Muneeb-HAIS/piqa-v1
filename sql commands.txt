@@ -1,0 +1,24 @@
+PS C:\Users\acer1\PIQA\instance> sqlite3
+SQLite version 3.44.2 2023-11-24 11:41:44 (UTF-16 console I/O)
+Enter ".help" for usage hints.
+Connected to a transient in-memory database.
+Use ".open FILENAME" to reopen on a persistent database.
+sqlite> .open users.db
+sqlite> .tables
+user
+sqlite> select * from users;
+Parse error: no such table: users
+sqlite> select * from user;
+1|123|scrypt:32768:8:1$vWDj1yIbawhWqKw8$36163d2e6a4274c1790f1ad34fab21895d1b4ebc5aeed171a585bc5053c9d14d218bc414382381b632562d498e4fa44ea52b4d807689b9b7dd1a591b08e688e7|
+2|muneeb|scrypt:32768:8:1$baloka5yTZBbMrem$42375414cf7818013799d086dbb31e6119117a20f9107071859d4b44fe71f5b491229768a94e4f567036d826b9ca727e1a0e9a4ad4f2f34217ed38ab2e8a5747|admin
+sqlite>
+sqlite> .schema conversation
+CREATE TABLE conversation (
+        id INTEGER NOT NULL,
+        role VARCHAR(50) NOT NULL,
+        content TEXT NOT NULL,
+        model_info VARCHAR(50),
+        timestamp DATETIME,
+        PRIMARY KEY (id)
+);
+sqlite>
