@@ -10,7 +10,7 @@ load_dotenv()
 
 app = Flask(__name__)
 
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = "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"
 
 # Replace the following with your Google Drive link
 google_drive_link = "https://docs.google.com/spreadsheets/d/1MPUIMXgPqsc81olEYST_ehBTSnNvptbS/export?format=xlsx"
