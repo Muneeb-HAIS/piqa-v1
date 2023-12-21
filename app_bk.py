@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request
 from openai import OpenAI
 import pandas as pd
 from flask_sqlalchemy import SQLAlchemy
@@ -10,12 +10,15 @@ load_dotenv()
 
 app = Flask(__name__)
 
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = "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"
 
-#OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+# Replace the following with your Google Drive link
+google_drive_link = "https://docs.google.com/spreadsheets/d/1MPUIMXgPqsc81olEYST_ehBTSnNvptbS/export?format=xlsx"
+
+# OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 client = OpenAI()
 
-df = pd.read_excel(r'C:\Users\acer1\Downloads\Company Structure Dataset.xlsx')
+df = pd.read_excel(google_drive_link)
 df_json = df.to_json(orient='split')
 system_message = {"role": "system", "content": df_json}
 
@@ -54,8 +57,6 @@ def chat_bot():
     app.logger.info(f"Conversation: {conversation}")
     app.logger.info(f"Model Info: {model_info}")
     app.logger.info(f"Timestamp: {timestamp}")
-
-  
 
     return render_template('index3.html', user_input=user_input, assistant_response=assistant_response)
 
