@@ -10,12 +10,11 @@ load_dotenv()
 
 app = Flask(__name__)
 
-os.environ["OPENAI_API_KEY"] = "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"
 
 # Replace the following with your Google Drive link
 google_drive_link = "https://docs.google.com/spreadsheets/d/1MPUIMXgPqsc81olEYST_ehBTSnNvptbS/export?format=xlsx"
 
-# OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 client = OpenAI()
 
 df = pd.read_excel(google_drive_link)
